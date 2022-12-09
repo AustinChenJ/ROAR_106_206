@@ -22,10 +22,10 @@ class LineFollowingAgent(Agent):
 
         # (-128, -50; 0, 70) + 128
         # 150 - 200, 0 - 60; 150, 96
-        # self.ycbcr_lower_range = (0, 220, 60)  # low range of color YELLOW
-        # self.ycbcr_upper_range = (250, 240, 130)  # high range of color
-        self.ycbcr_lower_range = (0, 180, 60)  # low range of color
-        self.ycbcr_upper_range = (250, 240, 140)  # high range of color
+        self.ycbcr_lower_range = (0, 220, 60)  # low range of color YELLOW
+        self.ycbcr_upper_range = (250, 240, 130)  # high range of color
+        # self.ycbcr_lower_range = (0, 180, 60)  # low range of color
+        # self.ycbcr_upper_range = (250, 240, 140)  # high range of color
         self.controller = PIDController(agent=self)
         self.prev_steerings: deque = deque(maxlen=10)
 
@@ -148,9 +148,12 @@ class LineFollowingAgent(Agent):
         self.logger.info("Executing prev")
 
         if np.average(self.prev_steerings) < 0:
-            self.vehicle.control.steering = -1
+            self.vehicle.control.steering = -0.7
+            # self.vehicle.control.throttle = 0.02
         else:
-            self.vehicle.control.steering = 1
+            # while self.rotation.yaw >= -180:
+            self.vehicle.control.steering = 0.7
+            # self.vehicle.control.throttle = 0.02
         # self.logger.info("Cannot see line, executing prev cmd")
         self.prev_steerings.append(self.vehicle.control.steering)
         self.vehicle.control.throttle = self.vehicle.control.throttle
