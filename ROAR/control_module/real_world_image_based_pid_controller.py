@@ -19,8 +19,9 @@ class RealWorldImageBasedPIDController(Controller):
             maxlen=self.lat_error_deque_length)  # this is how much error you want to accumulate
         self.long_error_queue = deque(
             maxlen=self.long_error_deque_length)  # this is how much error you want to accumulate
-        self.target_speed = 7  # m / s
-        self.max_throttle = 0.15
+        self.target_speed = 2  # m / s
+        self.max_throttle = 0.35
+        # self.min_throttle = 0.07
         self.curr_max_throttle = self.max_throttle
         self.config = json.load(Path(self.agent.agent_settings.pid_config_file_path).open('r'))
         self.long_config = self.config["longitudinal_controller"]
@@ -39,6 +40,8 @@ class RealWorldImageBasedPIDController(Controller):
         k_p, k_d, k_i = self.find_k_values(self.agent.vehicle, self.lat_config)
         # print(f"Speed = {self.agent.vehicle.get_speed(self.agent.vehicle)}"
         #       f"kp, kd, ki = {k_p, k_d, k_i} ")
+        
+        # k_p, k_d, k_i = 0.8, 0.8, 0.3
         e_p = k_p * error
         e_d = k_d * error_dt
         e_i = k_i * error_it
@@ -67,9 +70,9 @@ class RealWorldImageBasedPIDController(Controller):
         e_p = k_p * e
         e_d = k_d * de
         e_i = k_i * ie
-        e_incline = 0.015 * incline
+        # e_incline = 0.015 * incline
 
-        total_error = e_p + e_d + e_i + e_incline
+        total_error = e_p + e_d + e_i #+ e_incline
         # print(e_p, e_d, e_i, e_incline, total_error)
 
         if sum(self.long_error_queue) >= self.target_speed * (self.long_error_deque_length - 1):
@@ -77,8 +80,8 @@ class RealWorldImageBasedPIDController(Controller):
         else:
             self.curr_max_throttle = self.max_throttle
 
-        if incline > 10:
-            self.curr_max_throttle = max(self.curr_max_throttle, 0.26)
+        # if incline > 10:
+        #     self.curr_max_throttle = max(self.curr_max_throttle, 0.26)
 
         long_control = float(np.clip(total_error, -self.curr_max_throttle, self.curr_max_throttle))
         return long_control
@@ -86,7 +89,7 @@ class RealWorldImageBasedPIDController(Controller):
     @staticmethod
     def find_k_values(vehicle: Vehicle, config: dict) -> np.array:
         current_speed = Vehicle.get_speed(vehicle=vehicle)
-        k_p, k_d, k_i = 1, 0, 0
+        k_p, k_d, k_i = 0.80, 0.85, 0.5
         for speed_upper_bound, kvalues in config.items():
             speed_upper_bound = float(speed_upper_bound)
             if current_speed < speed_upper_bound:
