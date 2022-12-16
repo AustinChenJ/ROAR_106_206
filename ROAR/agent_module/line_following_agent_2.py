@@ -148,12 +148,12 @@ class LineFollowingAgent(Agent):
         self.logger.info("Executing prev")
 
         if np.average(self.prev_steerings) < 0:
-            self.vehicle.control.steering = -0.7
-            # self.vehicle.control.throttle = 0.02
+            self.vehicle.control.steering = -0.8
+            self.vehicle.control.throttle = 0.02
         else:
             # while self.rotation.yaw >= -180:
-            self.vehicle.control.steering = 0.7
-            # self.vehicle.control.throttle = 0.02
+            self.vehicle.control.steering = 0.8
+            self.vehicle.control.throttle = 0.02
         # self.logger.info("Cannot see line, executing prev cmd")
         self.prev_steerings.append(self.vehicle.control.steering)
         self.vehicle.control.throttle = self.vehicle.control.throttle
